@@ -1,20 +1,20 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
---the exponent of the result is a 9 bit incrementing and decrementing register
+--the exponent of the result is a 7 bit incrementing and decrementing register
 
 entity result_exponent_reg is
-	port(din: in std_logic_vector(8 downto 0);
+	port(din: in std_logic_vector(6 downto 0);
 	     load, inc, dec, greset_b, gclk: in std_logic;
-		  dout, doutb: out std_logic_vector(8 downto 0));
+		  dout, doutb: out std_logic_vector(6 downto 0));
 end result_exponent_reg;
 
 
 architecture rtl of result_exponent_reg is
-	signal int_data, int_dout, int_increment, int_decrement: std_logic_vector(8 downto 0);
+	signal int_data, int_dout, int_increment, int_decrement: std_logic_vector(6 downto 0);
 	
 	component nbitaddersubtractor
-		generic(n: integer:=9);
+		generic(n: integer:=7);
 		port(x : in STD_LOGIC_VECTOR(n-1 downto 0); -- First operand
         y : in STD_LOGIC_VECTOR(n-1 downto 0); -- Second operand
         cin : in STD_LOGIC;			-- Control signal for operation type
@@ -24,7 +24,7 @@ architecture rtl of result_exponent_reg is
 	end component;
 	
 	component nbitreg
-		generic(n: integer:=9);
+		generic(n: integer:=7);
 		PORT(reset_b: in std_logic;
 		  din : in std_logic_vector(n-1 downto 0);
 		  load, clk: in std_logic;
@@ -42,10 +42,10 @@ architecture rtl of result_exponent_reg is
 					dout_b => doutb);
 	
 	increment: nbitaddersubtractor
-		port map(x => int_dout, y => "000000001", cin => '0', sum => int_increment, cout =>open);
+		port map(x => int_dout, y => "0000001", cin => '0', sum => int_increment, cout =>open);
 	
 	decrement: nbitaddersubtractor
-		port map(x => int_dout, y => "000000001", cin => '1', sum => int_decrement, cout =>open);
+		port map(x => int_dout, y => "0000001", cin => '1', sum => int_decrement, cout =>open);
 		
 	int_data <= int_increment when inc = '1' else
 					int_decrement when dec = '1' else
